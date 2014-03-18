@@ -11,45 +11,45 @@ import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
-public class FacialDetection {
+public class FacialTracking {
  
-    private static String facial_cascade = "haarcascade_frontalface_alt.xml";
-    private static String eyes_cascade = "haarcascade_eye_tree_eyeglasses.xml";
-    private static CascadeClassifier facial_cascade_classifier = new CascadeClassifier();
-    private static CascadeClassifier eyes_cascade_classifier = new CascadeClassifier();
+    private static String facial_tracking_cascade = "haarcascade_frontalface_alt.xml";
+    private static String eye_tracking_cascade = "haarcascade_eye_tree_eyeglasses.xml";
+    private static CascadeClassifier facial_Tracking_cascade_classifier = new CascadeClassifier();
+    private static CascadeClassifier eye_tracking_cascade_classifier = new CascadeClassifier();
     private static String displayWindow = "Capturing Facial Detection";
     
-    public static void FacialDetection (Mat frame)
+    public static void FacialRecognitionFacialTracking (Mat frame)
     {
         Mat fram_gray = new Mat ();
-        MatOfRect facial = new MatofRect();
+        MatOfRect face = new MatofRect();
         
-        Rect[] facialArray = facial.toArray();
+        Rect[] faceArray = face.toArray();
         
         Imgproc.cvtColor(frame, frame_gray, Imgproc.COLOR_BGRA2GRAY);
         Imgproc.equalizeHist(frame_gray, frame_gray);
         
         //Code used for Facial Detection
-        face_cascade.detectMultiScale(frame_gray, facial, 1.1, 2, 0, new Size(30, 30), new Size() );
+        facial_tracking_cascade.detectMultiScale(frame_gray, face, 1.1, 2, 0, new Size(30, 30), new Size() );
         
-        for (int i=0; i < facialArray.length; i++)
+        for (int i=0; i < faceArray.length; i++)
         {
-             Point center = new Point(facialArray[i].x + facialArray[i].width * 0.5, facialArray[i].y + facialArray[i].height * 0.5);
-             Core.ellipse(frame, center, new Size(facialArray[i].width * 0.5, facialArray[i].height * 0.5), 0, 0, 360, new Scalar(255, 0, 255), 4, 8, 0);
+             Point center_point = new Point(faceArray[i].x + faceArray[i].width * 0.5, faceArray[i].y + faceArray[i].height * 0.5);
+             Core.ellipse(frame, center_point, new Size(faceArray[i].width * 0.5, faceArray[i].height * 0.5), 0, 0, 360, new Scalar(255, 0, 255), 4, 8, 0);
 
-             Mat faceROI = frame_gray.submat(facialArray[i]);
+             Mat faceROI = frame_gray.submat(faceArray[i]);
              MatOfRect eye = new MatOfRect();
 
              Rect[] eyeArray = eye.toArray();
 
             //Detect the eyes for the face
-            eyes_cascade_classifier.detectMultiScale(faceROI, eye, 1.1, 2, 0,new Size(30, 30), new Size());
+            eye_tracking_cascade_classifier.detectMultiScale(faceROI, eye, 1.1, 2, 0,new Size(30, 30), new Size());
 
             for (int j = 0; j < eyeArray.length; j++)
             {
-            Point centerA = new Point(facialArray[i].x + eyeArray[i].x + eyeArray[i].width * 0.5, facialArray[i].y + eyeArray[i].y + eyeArray[i].height * 0.5);
+            Point new_center_point = new Point(faceArray[i].x + eyeArray[i].x + eyeArray[i].width * 0.5, faceArray[i].y + eyeArray[i].y + eyeArray[i].height * 0.5);
             int radius = (int) Math.round((eyeArray[i].width + eyeArray[i].height) * 0.25);
-            Core.circle(frame, centerA, radius, new Scalar(255, 0, 0), 4, 8, 0);
+            Core.circle(frame, new_center_point, radius, new Scalar(255, 0, 0), 4, 8, 0);
             }
          }
             //Display what you currently are tracking
@@ -63,14 +63,14 @@ public class FacialDetection {
        Mat frame = new Mat();
 
        //Code to load the Cascades
-       if (!facial_cascade_classifier.load(facial_cascade))
+       if (!facial_tracking_cascade_classifier.load(facial_tracking_cascade))
        {
-           System.out.print("--(!)An Error Occurred, Cannot Load.\n");
+           System.out.print("An error has occurred, please try again!\n");
            return;
        }
-       if (!eyes_cascade_classifier.load(eyes_cascade))
+       if (!eye_tracking_cascade_classifier.load(eye_tracking_cascade))
        {
-           System.out.print("--(!)An Error Occurred, Cannot Load.\n");
+           System.out.print("An error has occurred, please try again!\n");
            return;
        }
 
@@ -78,12 +78,12 @@ public class FacialDetection {
        capture = new VideoCapture(0);
        if(!capture.isOpened())
        {
-           System.out.println("Did not connect to camera.");
+           System.out.println("Did not connect to camera, unable to attempt facial tracking.");
        }
        else
        {
            capture.retrieve(frame);
-           FacialDetection(frame);
+           FacialTracking(frame);
            capture.release();
        }
        }
